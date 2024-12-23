@@ -1,60 +1,74 @@
-import React, { useEffect, useState } from "react";
-import { FlatList, Image, TouchableOpacity, StyleSheet } from "react-native";
+import React from "react";
+import {
+  FlatList,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  View,
+} from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { getDatabase, ref, onValue } from "firebase/database"; // Correct Firebase v9 imports
 import { useRouter } from "expo-router";
-
-// Firebase configuration
-import { app } from "@/config/firebase"; // Ensure this points to your Firebase app config
+import { useFetchData } from "@/hooks/usefetchdata"; // Import custom hook
 
 const Home = () => {
-  const [myBooks, setMyBooks] = useState([]);
+  const books = useFetchData();
   const router = useRouter();
 
-  // Fetch books data from Firebase
-  useEffect(() => {
-    const db = getDatabase(app); // Initialize Firebase Realtime Database instance
-    const booksRef = ref(db, "books"); // Reference to the 'books' node
-    const unsubscribe = onValue(booksRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        // Convert data to array format
-        const booksArray = Object.keys(data).map((key) => ({
-          id: key,
-          ...data[key],
-        }));
-        setMyBooks(booksArray);
-      }
-    });
+  // Render books by category
+  const renderBooksByCategory = (category) => {
+    const categoryBooks = books[category];
+    if (!categoryBooks || categoryBooks.length === 0) return null;
 
-    return () => unsubscribe();
-  }, []);
+    return (
+      <ThemedView style={styles.categoryContainer}>
+        <ThemedText style={styles.categoryHeader}>{category}</ThemedText>
+        <FlatList
+          data={categoryBooks}
+          keyExtractor={(item) => item.id}
+          horizontal
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.bookItem}
+              onPress={() =>
+                router.push({
+                  pathname: `/book-detail/${item.id}`,
+                  params: {
+                    bookName: item.bookName,
+                    description: item.description || "Unknown", // Default language if not available
+                    author: item.author || "Unknown", // Default pageNo if not available
+                    rating: item.rating || "N/A", // Default rating if not available
+                    bookCover: item.bookCover || "N/A", // Default rating if not available
+                  },
+                })
+              }
+            >
+              <Image
+                source={{ uri: item.bookCover }}
+                style={styles.bookImage}
+                resizeMode="cover"
+              />
+              <ThemedText style={styles.bookName}>{item.bookName}</ThemedText>
+            </TouchableOpacity>
+          )}
+          contentContainerStyle={styles.bookList}
+        />
+      </ThemedView>
+    );
+  };
 
   return (
     <ThemedView style={styles.container}>
-      {/* Header */}
-      <ThemedText style={styles.header}>My Books</ThemedText>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <ThemedText style={styles.header}>Categories</ThemedText>
 
-      {/* Books List */}
-      <FlatList
-        data={myBooks}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.bookItem}
-            onPress={() => router.push(`/book-detail/${item.id}`)}
-          >
-            <Image
-              source={{ uri: item.bookCover }}
-              style={styles.bookImage}
-              resizeMode="cover"
-            />
-            <ThemedText style={styles.bookName}>{item.bookName}</ThemedText>
-          </TouchableOpacity>
-        )}
-        contentContainerStyle={styles.bookList}
-      />
+        {renderBooksByCategory("Mystery")}
+        {renderBooksByCategory("Literature")}
+        {renderBooksByCategory("Romance")}
+        {renderBooksByCategory("Fantasy")}
+        {renderBooksByCategory("Horror")}
+      </ScrollView>
     </ThemedView>
   );
 };
@@ -62,35 +76,44 @@ const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff", // Direct color value instead of constant
-    padding: 16, // Simple padding value
+    padding: 16,
   },
   header: {
-    fontSize: 24, // Direct font size
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#000000", // Black color for text
-    marginBottom: 16, // Space below header
+    marginBottom: 16,
+  },
+  categoryContainer: {
+    marginBottom: 24,
+  },
+  categoryHeader: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 8,
   },
   bookList: {
-    paddingBottom: 16, // Padding at the bottom of the list
+    paddingBottom: 16,
   },
   bookItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
-    backgroundColor: "#f0f0f0", // Light gray background
+    marginRight: 16,
     borderRadius: 8,
     padding: 8,
+    borderWidth: 1, // Added border width
+    borderColor: "#808080", // Gray border color
   },
   bookImage: {
     width: 50,
     height: 75,
-    borderRadius: 4, // Rounded corners for image
+    borderRadius: 4,
   },
   bookName: {
-    fontSize: 16, // Text size for book name
-    color: "#000000", // Text color (black)
-    marginLeft: 8, // Space between image and text
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  scrollViewContent: {
+    paddingBottom: 16,
   },
 });
 
