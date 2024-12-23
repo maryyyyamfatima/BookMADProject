@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FlatList,
   Image,
@@ -10,22 +10,51 @@ import {
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useRouter } from "expo-router";
-import { useFetchData } from "@/hooks/usefetchdata"; // Import custom hook
+import { useFetchData } from "@/hooks/usefetchdata";
+import SearchBar from "@/components/SearchBar";
 
 const Home = () => {
   const books = useFetchData();
+  const [filteredBooks, setFilteredBooks] = useState({});
   const router = useRouter();
 
-  // Render books by category
-  const renderBooksByCategory = (category) => {
-    const categoryBooks = books[category];
-    if (!categoryBooks || categoryBooks.length === 0) return null;
+  const handleSearch = (query) => {
+    if (!query) {
+      setFilteredBooks({});
+      return;
+    }
+
+    const lowerCaseQuery = query.toLowerCase();
+    const newFilteredBooks = {};
+
+    Object.keys(books).forEach((category) => {
+      const categoryBooks = books[category];
+
+      // Check if the category name matches the query
+      if (category.toLowerCase().includes(lowerCaseQuery)) {
+        newFilteredBooks[category] = categoryBooks;
+      } else {
+        // Otherwise, filter books by name within the category
+        const filtered = categoryBooks.filter((book) =>
+          book.bookName.toLowerCase().includes(lowerCaseQuery)
+        );
+        if (filtered.length > 0) {
+          newFilteredBooks[category] = filtered;
+        }
+      }
+    });
+
+    setFilteredBooks(newFilteredBooks);
+  };
+
+  const renderBooksByCategory = (category, data) => {
+    if (!data || data.length === 0) return null;
 
     return (
       <ThemedView style={styles.categoryContainer}>
         <ThemedText style={styles.categoryHeader}>{category}</ThemedText>
         <FlatList
-          data={categoryBooks}
+          data={data}
           keyExtractor={(item) => item.id}
           horizontal
           renderItem={({ item }) => (
@@ -36,10 +65,10 @@ const Home = () => {
                   pathname: `/book-detail/${item.id}`,
                   params: {
                     bookName: item.bookName,
-                    description: item.description || "Unknown", // Default language if not available
-                    author: item.author || "Unknown", // Default pageNo if not available
-                    rating: item.rating || "N/A", // Default rating if not available
-                    bookCover: item.bookCover || "N/A", // Default rating if not available
+                    description: item.description || "Unknown",
+                    author: item.author || "Unknown",
+                    rating: item.rating || "N/A",
+                    bookCover: item.bookCover || "N/A",
                   },
                 })
               }
@@ -58,16 +87,19 @@ const Home = () => {
     );
   };
 
+  const displayBooks = Object.keys(filteredBooks).length
+    ? filteredBooks
+    : books;
+
   return (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <ThemedText style={styles.header}>Categories</ThemedText>
+        <SearchBar onSearch={handleSearch} />
 
-        {renderBooksByCategory("Mystery")}
-        {renderBooksByCategory("Literature")}
-        {renderBooksByCategory("Romance")}
-        {renderBooksByCategory("Fantasy")}
-        {renderBooksByCategory("Horror")}
+        {Object.keys(displayBooks).map((category) =>
+          renderBooksByCategory(category, displayBooks[category])
+        )}
       </ScrollView>
     </ThemedView>
   );
@@ -100,8 +132,8 @@ const styles = StyleSheet.create({
     marginRight: 16,
     borderRadius: 8,
     padding: 8,
-    borderWidth: 1, // Added border width
-    borderColor: "#808080", // Gray border color
+    borderWidth: 1,
+    borderColor: "#808080",
   },
   bookImage: {
     width: 50,
