@@ -69,6 +69,9 @@ const Home = () => {
                     author: item.author || "Unknown",
                     rating: item.rating || "N/A",
                     bookCover: item.bookCover || "N/A",
+                    price: item.price || "N/A",
+                    id: item.id,
+                    pdfUrl: item.pdfUrl || "N/A",
                   },
                 })
               }

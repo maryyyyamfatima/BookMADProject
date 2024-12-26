@@ -4,7 +4,7 @@ import { ExternalLink } from '@/components/ExternalLink';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-export default function favorites() {
+export default function search() {
   return (
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title"></ThemedText>

@@ -10,7 +10,7 @@ export default function Index() {
   return (
     <AuthProvider>
       <ThemedView style={styles.container}>
-        <ThemedText style={styles.title}>Welcome to My Book Store</ThemedText>
+        <ThemedText style={styles.title}>Welcome</ThemedText>
         <LoginButton />
         <Home />
       </ThemedView>
