@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -17,16 +17,23 @@ const CartScreen = () => {
   const author = searchParams.get("author") || "Unknown Author";
   const bookCover = searchParams.get("bookCover") || "";
   const price = parseFloat(searchParams.get("price") || "0");
+  const initialCartCount = parseFloat(searchParams.get("cartCount") || "0");
+
+  const [cartCount, setCartCount] = useState(initialCartCount);
+
+  const handleIncrease = () => setCartCount((prev) => prev + 1);
+  const handleDecrease = () =>
+    setCartCount((prev) => (prev > 1 ? prev - 1 : 1));
 
   const handleProceedToCheckout = () => {
-    // Navigate to a checkout or payment screen
     router.push("/CheckoutScreen");
   };
 
   const handleContinueShopping = () => {
-    // Navigate back to the main book list or previous page
     router.push("/(tabs)");
   };
+
+  const subtotal = (price * cartCount).toFixed(2);
 
   return (
     <View style={styles.container}>
@@ -40,8 +47,25 @@ const CartScreen = () => {
               <Text style={styles.bookTitle}>{bookName}</Text>
               <Text style={styles.bookAuthor}>by {author}</Text>
               <Text style={styles.bookPrice}>${price.toFixed(2)}</Text>
+              <View style={styles.quantityContainer}>
+                <TouchableOpacity
+                  onPress={handleDecrease}
+                  style={styles.quantityButton}
+                >
+                  <Text style={styles.quantityText}>-</Text>
+                </TouchableOpacity>
+                <Text style={styles.quantityValue}>{cartCount}</Text>
+                <TouchableOpacity
+                  onPress={handleIncrease}
+                  style={styles.quantityButton}
+                >
+                  <Text style={styles.quantityText}>+</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
+
+          <Text style={styles.subtotalText}>Subtotal: ${subtotal}</Text>
 
           <View style={styles.cartActions}>
             <TouchableOpacity
@@ -111,6 +135,35 @@ const styles = StyleSheet.create({
   bookPrice: {
     fontSize: 16,
     color: "#8a2be2",
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  quantityButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: "#444",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  quantityText: {
+    color: "#FFF",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  quantityValue: {
+    fontSize: 16,
+    color: "#FFF",
+    marginHorizontal: 10,
+  },
+  subtotalText: {
+    fontSize: 18,
+    color: "#FFF",
+    textAlign: "center",
+    marginVertical: 10,
   },
   cartActions: {
     marginTop: 20,

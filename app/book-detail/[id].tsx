@@ -44,6 +44,8 @@ const BookDetail = () => {
                     author: author || "Unknown",
                     bookCover: bookCover || "N/A",
                     price: price || "N/A",
+                    cartCount: cartCount || "N/A",
+                    totalPrice: totalPrice || "N/A",
                   },
                 })
     }
