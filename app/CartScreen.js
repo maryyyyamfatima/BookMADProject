@@ -26,7 +26,17 @@ const CartScreen = () => {
     setCartCount((prev) => (prev > 1 ? prev - 1 : 1));
 
   const handleProceedToCheckout = () => {
-    router.push("/CheckoutScreen");
+    router.push({
+      pathname: "/CheckoutScreen",
+      params: {
+        bookName: bookName,
+        bookCover: bookCover || "N/A",
+        price: price || "N/A",
+        cartCount: cartCount || "N/A",
+        subtotal: subtotal || "N/A",
+      },
+    });
+    // router.push("/CheckoutScreen");
   };
 
   const handleContinueShopping = () => {
