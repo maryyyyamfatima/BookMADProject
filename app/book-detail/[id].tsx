@@ -35,7 +35,7 @@ const BookDetail = () => {
 
   const handleViewCart = () => {
     if (isLoggedIn) {
-      router.push("./CartScreen");
+      router.push("/CartScreen");
     } else {
       router.push("/LoginScreen");
     }
@@ -78,11 +78,12 @@ const BookDetail = () => {
           <TouchableOpacity style={styles.button} onPress={handleAddToCart}>
             <Text style={styles.buttonText}>Add to Cart</Text>
           </TouchableOpacity>
+          
           <TouchableOpacity
             style={[styles.button]}
             onPress={() =>
             router.push({
-              pathname: `./pdfViewerScreen`,
+              pathname: `/pdfViewerScreen`,
               params: {
                 pdfUrl: pdfUrl || "N/A",
               },
