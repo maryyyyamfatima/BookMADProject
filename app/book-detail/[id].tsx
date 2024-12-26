@@ -83,7 +83,7 @@ const BookDetail = () => {
             style={[styles.button]}
             onPress={() =>
             router.push({
-              pathname: `/pdfViewerScreen`,
+              pathname: `./pdfViewerScreen`,
               params: {
                 pdfUrl: pdfUrl || "N/A",
               },

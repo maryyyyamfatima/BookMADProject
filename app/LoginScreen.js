@@ -26,7 +26,7 @@ const LoginScreen = () => {
 
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        router.push("/Home"); // Navigate using router.push() instead of navigate()
+        router.push("/(tabs)"); // Navigate using router.push() instead of navigate()
       })
       .catch((error) => {
         const errorMessage = error.message;
