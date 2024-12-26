@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     position: "absolute", // Align to the right
     right: 16,
-    top: 50, // Adjust based on your layout
+    top: 60, // Adjust based on your layout
   },
   buttonText: {
     color: "#000",

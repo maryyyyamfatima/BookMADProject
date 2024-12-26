@@ -11,41 +11,10 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useRouter } from "expo-router";
 import { useFetchData } from "@/hooks/usefetchdata";
-import SearchBar from "@/components/SearchBar";
 
 const Home = () => {
   const books = useFetchData();
-  const [filteredBooks, setFilteredBooks] = useState({});
   const router = useRouter();
-
-  const handleSearch = (query) => {
-    if (!query) {
-      setFilteredBooks({});
-      return;
-    }
-
-    const lowerCaseQuery = query.toLowerCase();
-    const newFilteredBooks = {};
-
-    Object.keys(books).forEach((category) => {
-      const categoryBooks = books[category];
-
-      // Check if the category name matches the query
-      if (category.toLowerCase().includes(lowerCaseQuery)) {
-        newFilteredBooks[category] = categoryBooks;
-      } else {
-        // Otherwise, filter books by name within the category
-        const filtered = categoryBooks.filter((book) =>
-          book.bookName.toLowerCase().includes(lowerCaseQuery)
-        );
-        if (filtered.length > 0) {
-          newFilteredBooks[category] = filtered;
-        }
-      }
-    });
-
-    setFilteredBooks(newFilteredBooks);
-  };
 
   const renderBooksByCategory = (category, data) => {
     if (!data || data.length === 0) return null;
@@ -80,7 +49,6 @@ const Home = () => {
                 style={styles.bookImage}
                 resizeMode="cover"
               />
-              <ThemedText style={styles.bookName}>{item.bookName}</ThemedText>
             </TouchableOpacity>
           )}
           contentContainerStyle={styles.bookList}
@@ -89,18 +57,13 @@ const Home = () => {
     );
   };
 
-  const displayBooks = Object.keys(filteredBooks).length
-    ? filteredBooks
-    : books;
-
   return (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <ThemedText style={styles.header}>Categories</ThemedText>
-        <SearchBar onSearch={handleSearch} />
 
-        {Object.keys(displayBooks).map((category) =>
-          renderBooksByCategory(category, displayBooks[category])
+        {Object.keys(books).map((category) =>
+          renderBooksByCategory(category, books[category])
         )}
       </ScrollView>
     </ThemedView>
@@ -113,9 +76,11 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   header: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
     marginBottom: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   categoryContainer: {
     marginBottom: 24,
@@ -138,9 +103,8 @@ const styles = StyleSheet.create({
     borderColor: "#808080",
   },
   bookImage: {
-    width: 50,
-    height: 75,
-    borderRadius: 4,
+    width: 130,
+    height: 155,
   },
   bookName: {
     fontSize: 16,

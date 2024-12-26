@@ -37,7 +37,15 @@ const BookDetail = () => {
     if (isLoggedIn) {
       router.push("/CartScreen");
     } else {
-      router.push("/LoginScreen");
+      router.push({
+                  pathname: `/CartScreen`,
+                  params: {
+                    bookName: bookName,
+                    author: author || "Unknown",
+                    bookCover: bookCover || "N/A",
+                    price: price || "N/A",
+                  },
+                })
     }
   };
 

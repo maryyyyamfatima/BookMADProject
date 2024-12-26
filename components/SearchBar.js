@@ -16,6 +16,7 @@ const SearchBar = ({ onSearch }) => {
       <TextInput
         style={styles.input}
         placeholder="Search books..."
+        placeholderTextColor="#808080" // Adjust this to your theme
         value={query}
         onChangeText={handleSearch}
       />
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   input: {
-    height: 40,
+    height: 45,
     borderColor: "#808080",
     borderWidth: 1,
     borderRadius: 8,

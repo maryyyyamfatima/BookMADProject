@@ -24,9 +24,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    paddingTop: 40,
+    paddingTop: 60,
     paddingBottom: 10,
-    fontSize: 24,
+    fontSize: 35,
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center', // Center the title
