@@ -11,6 +11,7 @@ import {
 import { useSearchParams } from "expo-router/build/hooks";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 
 const BookDetail = () => {
   const router = useRouter();
@@ -26,11 +27,14 @@ const BookDetail = () => {
 
   const { isLoggedIn } = useAuth();
 
-  const [cartCount, setCartCount] = useState(0);
-  const [isReading, setIsReading] = useState(false);
+  // const [cartCount, setCartCount] = useState(0);
+  const { cartCount, addToCart } = useCart(); // Use cartCount from context
+  // const [isReading, setIsReading] = useState(false);
 
   const handleAddToCart = () => {
-    setCartCount(cartCount + 1);
+    // Ensure all necessary details are passed to addToCart
+    const book = { bookId: id, bookName, description, author, bookCover, price };
+    addToCart(book);
   };
 
   const handleViewCart = () => {
@@ -52,6 +56,7 @@ const BookDetail = () => {
   };
 
   const totalPrice = cartCount * price;
+  // const { cartItems, totalItems, totalPrice } = useCart();
 
   if (!id || !bookName || !description || !author || !rating || !bookCover || !price || !pdfUrl) {
     return <Text style={styles.errorText}>Missing book details or cover image.</Text>;

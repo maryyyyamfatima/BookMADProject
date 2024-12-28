@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,75 +7,83 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { useSearchParams } from "expo-router/build/hooks";
-import { useRouter } from "expo-router";
+import { useCart } from "../context/CartContext";
+import { router } from "expo-router";
 
 const CartScreen = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const bookName = searchParams.get("bookName") || "Unknown Book";
-  const author = searchParams.get("author") || "Unknown Author";
-  const bookCover = searchParams.get("bookCover") || "";
-  const price = parseFloat(searchParams.get("price") || "0");
-  const initialCartCount = parseFloat(searchParams.get("cartCount") || "0");
+  const { cartItems, addToCart, removeFromCart } = useCart();
+  const [loading, setLoading] = useState(true);
 
-  const [cartCount, setCartCount] = useState(initialCartCount);
-
-  const handleIncrease = () => setCartCount((prev) => prev + 1);
-  const handleDecrease = () =>
-    setCartCount((prev) => (prev > 1 ? prev - 1 : 1));
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 0);
+  }, []);
 
   const handleProceedToCheckout = () => {
-    router.push({
-      pathname: "/CheckoutScreen",
-      params: {
-        bookName: bookName,
-        bookCover: bookCover || "N/A",
-        price: price || "N/A",
-        cartCount: cartCount || "N/A",
-        subtotal: subtotal || "N/A",
-      },
-    });
-    // router.push("/CheckoutScreen");
+    if (cartItems.length > 0) {
+      const subtotal = cartItems
+        .reduce((total, item) => total + item.price * item.quantity, 0)
+        .toFixed(2);
+
+      router.push({
+        pathname: "/CheckoutScreen",
+        params: {
+          cartItems: JSON.stringify(cartItems),
+          subtotal: subtotal,
+        },
+      });
+    } else {
+      alert("Your cart is empty!");
+    }
   };
 
   const handleContinueShopping = () => {
+    console.log("Continuing shopping...");
     router.push("/(tabs)");
   };
-
-  const subtotal = (price * cartCount).toFixed(2);
 
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>Your Cart</Text>
 
-      {bookCover ? (
+      {loading ? (
+        <Text style={styles.emptyCartText}>Loading your cart...</Text>
+      ) : cartItems.length > 0 ? (
         <ScrollView style={styles.scrollContainer}>
-          <View style={styles.cartItem}>
-            <Image source={{ uri: bookCover }} style={styles.bookCover} />
-            <View style={styles.detailsContainer}>
-              <Text style={styles.bookTitle}>{bookName}</Text>
-              <Text style={styles.bookAuthor}>by {author}</Text>
-              <Text style={styles.bookPrice}>${price.toFixed(2)}</Text>
-              <View style={styles.quantityContainer}>
-                <TouchableOpacity
-                  onPress={handleDecrease}
-                  style={styles.quantityButton}
-                >
-                  <Text style={styles.quantityText}>-</Text>
-                </TouchableOpacity>
-                <Text style={styles.quantityValue}>{cartCount}</Text>
-                <TouchableOpacity
-                  onPress={handleIncrease}
-                  style={styles.quantityButton}
-                >
-                  <Text style={styles.quantityText}>+</Text>
-                </TouchableOpacity>
+          {cartItems.map((item) => (
+            <View key={item.bookId} style={styles.cartItem}>
+              <Image
+                source={{ uri: item.bookCover }}
+                style={styles.bookCover}
+              />
+              <View style={styles.detailsContainer}>
+                <Text style={styles.bookTitle}>{item.bookName}</Text>
+                <Text style={styles.bookAuthor}>by {item.author}</Text>
+                <Text style={styles.bookPrice}>${item.price.toFixed(2)}</Text>
+                <View style={styles.quantityContainer}>
+                  <TouchableOpacity
+                    onPress={() => removeFromCart(item.bookId)}
+                    style={styles.quantityButton}
+                  >
+                    <Text style={styles.quantityText}>-</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.quantityValue}>{item.quantity}</Text>
+                  <TouchableOpacity
+                    onPress={() => addToCart(item)}
+                    style={styles.quantityButton}
+                  >
+                    <Text style={styles.quantityText}>+</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
+          ))}
 
-          <Text style={styles.subtotalText}>Subtotal: ${subtotal}</Text>
+          <Text style={styles.subtotalText}>
+            Subtotal: $
+            {cartItems
+              .reduce((total, item) => total + item.price * item.quantity, 0)
+              .toFixed(2)}
+          </Text>
 
           <View style={styles.cartActions}>
             <TouchableOpacity

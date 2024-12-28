@@ -9,16 +9,17 @@ import {
 import { useRouter } from "expo-router";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { useSearchParams } from "expo-router/build/hooks";
+import { useCart } from "@/context/CartContext"; // Adjust the import path if needed
 
 const CheckoutScreen = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const bookName = searchParams.get("bookName") || "Unknown Book";
-  const cartCount = searchParams.get("cartCount") || "Unknown Author";
-  const bookCover = searchParams.get("bookCover") || "";
-  const price = parseFloat(searchParams.get("price") || "0");
-  const subtotal = parseFloat(searchParams.get("subtotal") || "0");
+  const { cartItems } = useCart(); // Fetch cart items directly from CartContext
+
+  // Calculate subtotal directly from cart items
+  const subtotal = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
 
   // State for input fields
   const [name, setName] = useState("");
@@ -44,14 +45,20 @@ const CheckoutScreen = () => {
         {/* Order Summary Section */}
         <ThemedView style={styles.section}>
           <ThemedText style={styles.sectionTitle}>Order Summary</ThemedText>
-          <View style={styles.orderItem}>
-            <ThemedText style={styles.itemName}>{bookName}</ThemedText>
-            <ThemedText style={styles.itemPrice}>{price}</ThemedText>
-          </View>
+          {cartItems.map((item) => (
+            <View key={item.bookId} style={styles.orderItem}>
+              <ThemedText style={styles.itemName}>
+                {item.bookName} (x{item.quantity})
+              </ThemedText>
+              <ThemedText style={styles.itemPrice}>
+                ${(item.price * item.quantity).toFixed(2)}
+              </ThemedText>
+            </View>
+          ))}
           <View style={styles.separator} />
           <ThemedText style={styles.totalAmount}>
-            Total:{"  "}
-            <ThemedText style={styles.price}>{"$" + subtotal}</ThemedText>
+            Total:{" "}
+            <ThemedText style={styles.price}>${subtotal.toFixed(2)}</ThemedText>
           </ThemedText>
         </ThemedView>
 

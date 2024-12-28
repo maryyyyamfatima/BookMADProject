@@ -1,19 +1,24 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { AuthProvider } from '@/context/AuthContext'; // Adjust the path based on your project structure
+import { AuthProvider } from '@/context/AuthContext'; 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import Home from '@/components/home'; // Adjust the path based on your directory structure
-import LoginButton from '@/components/LoginButton'; // Adjust path
+import Home from '@/components/home'; 
+import LoginButton from '@/components/LoginButton'; 
+import {CartProvider} from '@/context/CartContext'; 
+import CartButton from '@/components/CartButton';
 
 export default function Index() {
   return (
     <AuthProvider>
+      <CartProvider>
       <ThemedView style={styles.container}>
         <ThemedText style={styles.title}>Welcome</ThemedText>
-        <LoginButton />
+        {/* <LoginButton /> */}
+        <CartButton />
         <Home />
       </ThemedView>
+      </CartProvider>
     </AuthProvider>
   );
 }

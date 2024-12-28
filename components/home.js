@@ -62,9 +62,11 @@ const Home = () => {
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <ThemedText style={styles.header}>Categories</ThemedText>
 
-        {Object.keys(books).map((category) =>
-          renderBooksByCategory(category, books[category])
-        )}
+        {Object.keys(books).map((category) => (
+          <React.Fragment key={category}>
+            {renderBooksByCategory(category, books[category])}
+          </React.Fragment>
+        ))}
       </ScrollView>
     </ThemedView>
   );
