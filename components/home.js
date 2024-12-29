@@ -21,7 +21,16 @@ const Home = () => {
 
     return (
       <ThemedView style={styles.categoryContainer}>
-        <ThemedText style={styles.categoryHeader}>{category}</ThemedText>
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: `/category/${category}`,
+              params: { categoryName: category },
+            })
+          }
+        >
+          <ThemedText style={styles.categoryHeader}>{category} &gt;</ThemedText>
+        </TouchableOpacity>
         <FlatList
           data={data}
           keyExtractor={(item) => item.id}
@@ -44,11 +53,13 @@ const Home = () => {
                 })
               }
             >
-              <Image
-                source={{ uri: item.bookCover }}
-                style={styles.bookImage}
-                resizeMode="cover"
-              />
+              <View style={styles.imageWrapper}>
+                <Image
+                  source={{ uri: item.bookCover }}
+                  style={styles.bookImage}
+                  resizeMode="cover"
+                />
+              </View>
             </TouchableOpacity>
           )}
           contentContainerStyle={styles.bookList}
@@ -90,6 +101,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 8,
+    color: "#fff",
   },
   bookList: {
     paddingBottom: 16,
@@ -98,14 +110,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginRight: 16,
-    borderRadius: 8,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: "#808080",
+  },
+  imageWrapper: {
+    borderRadius: 12,
+    overflow: "hidden",
+    width: 125,
+    height: 180,
   },
   bookImage: {
+<<<<<<< HEAD
     width: 130,
     height: 155,
+=======
+    width: "100%",
+    height: "100%",
+>>>>>>> adc991a75d1867dc7459d4a27aae473a025e1e24
   },
   scrollViewContent: {
     paddingBottom: 16,
