@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   },
   bookImage: {
     width: 130,
-    height: 155,
+    height: 185,
   },
   scrollViewContent: {
     paddingBottom: 16,

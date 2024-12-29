@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 28,
+    padding: 6,
     fontWeight: "bold",
     marginBottom: 16,
     textAlign: "center",
@@ -78,11 +79,10 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 8,
     alignItems: "center",
-    borderRadius: 12,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 2,
+    // elevation: 2,
     padding: 12,
   },
   imageWrapper: {
