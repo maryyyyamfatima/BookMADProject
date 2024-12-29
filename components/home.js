@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   FlatList,
   Image,
@@ -61,7 +61,6 @@ const Home = () => {
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <ThemedText style={styles.header}>Categories</ThemedText>
-
         {Object.keys(books).map((category) => (
           <React.Fragment key={category}>
             {renderBooksByCategory(category, books[category])}
@@ -107,10 +106,6 @@ const styles = StyleSheet.create({
   bookImage: {
     width: 130,
     height: 155,
-  },
-  bookName: {
-    fontSize: 16,
-    marginLeft: 8,
   },
   scrollViewContent: {
     paddingBottom: 16,
