@@ -72,7 +72,6 @@ const Home = () => {
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <ThemedText style={styles.header}>Categories</ThemedText>
-
         {Object.keys(books).map((category) => (
           <React.Fragment key={category}>
             {renderBooksByCategory(category, books[category])}
@@ -119,8 +118,13 @@ const styles = StyleSheet.create({
     height: 180,
   },
   bookImage: {
+<<<<<<< HEAD
+    width: 130,
+    height: 155,
+=======
     width: "100%",
     height: "100%",
+>>>>>>> adc991a75d1867dc7459d4a27aae473a025e1e24
   },
   scrollViewContent: {
     paddingBottom: 16,
