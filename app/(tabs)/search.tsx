@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import SearchBar from "@/components/SearchBar";
@@ -46,7 +46,16 @@ const Search = () => {
 
     return (
       <ThemedView style={styles.categoryContainer}>
-        <ThemedText style={styles.categoryHeader}>{category}</ThemedText>
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: `/category/[category]`,
+              params: { categoryName: category, category },
+            })
+          }
+        >
+          <ThemedText style={styles.categoryHeader}>{category} &gt;</ThemedText>
+        </TouchableOpacity>
         <FlatList
           data={data}
           keyExtractor={(item) => item.id}
@@ -56,8 +65,9 @@ const Search = () => {
               style={styles.bookItem}
               onPress={() =>
                 router.push({
-                  pathname: `../book-detail/${item.id}`,
+                  pathname: `/book-detail/[id]`,
                   params: {
+                    id: item.id,
                     bookName: item.bookName,
                     description: item.description || "Unknown",
                     author: item.author || "Unknown",
@@ -69,12 +79,13 @@ const Search = () => {
                 })
               }
             >
-              <Image
-                source={{ uri: item.bookCover }}
-                style={styles.bookImage}
-                resizeMode="cover"
-              />
-              <ThemedText style={styles.bookName}>{item.bookName}</ThemedText>
+              <View style={styles.imageWrapper}>
+                <Image
+                  source={{ uri: item.bookCover }}
+                  style={styles.bookImage}
+                  resizeMode="cover"
+                />
+              </View>
             </TouchableOpacity>
           )}
           contentContainerStyle={styles.bookList}
@@ -96,10 +107,10 @@ const Search = () => {
             renderBooksByCategory(category, displayBooks[category])
           )
         ) : (
-          <Text style={styles.notFound}>Book not found</Text>
+          <ThemedText style={styles.notFound}>Book not found</ThemedText>
         )
       ) : (
-        <Text style={styles.defaultMessage}>Search books</Text>
+        <ThemedText style={styles.defaultMessage}>Search books</ThemedText>
       )}
     </ThemedView>
   );
@@ -124,22 +135,17 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   bookItem: {
-    flexDirection: "row",
-    alignItems: "center",
     marginRight: 16,
-    borderRadius: 8,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: "#808080",
+  },
+  imageWrapper: {
+    borderRadius: 12,
+    overflow: "hidden",
+    width: 125,
+    height: 180,
   },
   bookImage: {
-    width: 50,
-    height: 75,
-    borderRadius: 4,
-  },
-  bookName: {
-    fontSize: 16,
-    marginLeft: 8,
+    width: "100%",
+    height: "100%",
   },
   notFound: {
     marginTop: 20,

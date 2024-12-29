@@ -26,10 +26,29 @@ const LoginScreen = () => {
 
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
+        Alert.alert("Success", "Login successful!");
         router.push("/(tabs)"); // Navigate using router.push() instead of navigate()
       })
       .catch((error) => {
-        const errorMessage = error.message;
+        // Parse the error code for specific feedback
+        let errorMessage = "An error occurred. Please try again.";
+        switch (error.code) {
+          case "auth/user-not-found":
+            errorMessage = "No account found with this email.";
+            break;
+          case "auth/wrong-password":
+            errorMessage = "Incorrect password. Please try again.";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "The email address is not valid.";
+            break;
+          case "auth/too-many-requests":
+            errorMessage =
+              "Too many unsuccessful attempts. Please try again later.";
+            break;
+          default:
+            errorMessage = error.message;
+        }
         Alert.alert("Error", errorMessage);
       });
   };

@@ -5,17 +5,19 @@ import {
   StyleSheet,
   ScrollView,
   View,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { useCart } from "@/context/CartContext"; // Adjust the import path if needed
+import { useCart } from "@/context/CartContext";
+import { database } from "@/config/firebase";
+import { ref, set, push } from "firebase/database";
 
 const CheckoutScreen = () => {
   const router = useRouter();
-  const { cartItems } = useCart(); // Fetch cart items directly from CartContext
+  const { cartItems, setCartItems } = useCart(); // Destructure setCartItems from useCart
 
-  // Calculate subtotal directly from cart items
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
@@ -28,13 +30,109 @@ const CheckoutScreen = () => {
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
   const [country, setCountry] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
 
-  const handlePayment = () => {
-    console.log("Proceeding to payment...");
-    router.push("/PaymentScreen");
+  // Track errors for input fields
+  const [errors, setErrors] = useState({
+    name: false,
+    address: false,
+    city: false,
+    state: false,
+    zip: false,
+    country: false,
+  });
+
+  // State for Cash on Delivery selection
+  const [isCODSelected, setIsCODSelected] = useState(false);
+
+  const handleConfirmOrder = () => {
+    let formValid = true;
+    let updatedErrors = { ...errors };
+
+    // Check if all fields are filled
+    if (!name) {
+      updatedErrors.name = true;
+      formValid = false;
+    }
+    if (!address) {
+      updatedErrors.address = true;
+      formValid = false;
+    }
+    if (!city) {
+      updatedErrors.city = true;
+      formValid = false;
+    }
+    if (!state) {
+      updatedErrors.state = true;
+      formValid = false;
+    }
+    if (!zip) {
+      updatedErrors.zip = true;
+      formValid = false;
+    }
+    if (!country) {
+      updatedErrors.country = true;
+      formValid = false;
+    }
+
+    if (!isCODSelected) {
+      Alert.alert("Error", "Please select a payment method.");
+      return;
+    }
+
+    setErrors(updatedErrors); // Update the error states
+
+    if (!formValid) {
+      Alert.alert(
+        "Error",
+        "Please fill in all fields before confirming your order."
+      );
+      return;
+    }
+
+    const order = {
+      customer: {
+        name,
+        address,
+        city,
+        state,
+        zip,
+        country,
+      },
+      paymentMethod: isCODSelected ? "Cash on Delivery" : "Other",
+      items: cartItems.map((item) => ({
+        bookName: item.bookName,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      total: subtotal,
+      timestamp: new Date().toISOString(),
+    };
+
+    const ordersRef = ref(database, "orders");
+    const newOrderRef = push(ordersRef);
+    set(newOrderRef, order)
+      .then(() => {
+        // Clear the cart after successful order placement
+        setCartItems([]); // Reset the cart
+
+        Alert.alert(
+          "Order Confirmed!",
+          "Your order has been successfully placed.",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                // Navigate back to the home screen
+                router.push("/(tabs)");
+              },
+            },
+          ]
+        );
+      })
+      .catch((error) => {
+        Alert.alert("Error", "There was an issue placing your order.");
+        console.error(error);
+      });
   };
 
   return (
@@ -42,7 +140,6 @@ const CheckoutScreen = () => {
       <ScrollView>
         <ThemedText style={styles.headerText}>Checkout</ThemedText>
 
-        {/* Order Summary Section */}
         <ThemedView style={styles.section}>
           <ThemedText style={styles.sectionTitle}>Order Summary</ThemedText>
           {cartItems.map((item) => (
@@ -62,87 +159,113 @@ const CheckoutScreen = () => {
           </ThemedText>
         </ThemedView>
 
-        {/* Shipping Information */}
         <ThemedView style={styles.section}>
           <ThemedText style={styles.sectionTitle}>
             Shipping Information
           </ThemedText>
           <TextInput
-            style={[styles.input, styles.themedInput]}
+            style={[
+              styles.input,
+              styles.themedInput,
+              errors.name && styles.errorInput,
+            ]}
             placeholder="Name"
             value={name}
-            onChangeText={setName}
+            onChangeText={(text) => {
+              setName(text);
+              if (text) setErrors((prev) => ({ ...prev, name: false }));
+            }}
             placeholderTextColor="#aaa"
           />
           <TextInput
-            style={[styles.input, styles.themedInput]}
+            style={[
+              styles.input,
+              styles.themedInput,
+              errors.address && styles.errorInput,
+            ]}
             placeholder="Address"
             value={address}
-            onChangeText={setAddress}
+            onChangeText={(text) => {
+              setAddress(text);
+              if (text) setErrors((prev) => ({ ...prev, address: false }));
+            }}
             placeholderTextColor="#aaa"
           />
           <TextInput
-            style={[styles.input, styles.themedInput]}
+            style={[
+              styles.input,
+              styles.themedInput,
+              errors.city && styles.errorInput,
+            ]}
             placeholder="City"
             value={city}
-            onChangeText={setCity}
+            onChangeText={(text) => {
+              setCity(text);
+              if (text) setErrors((prev) => ({ ...prev, city: false }));
+            }}
             placeholderTextColor="#aaa"
           />
           <TextInput
-            style={[styles.input, styles.themedInput]}
+            style={[
+              styles.input,
+              styles.themedInput,
+              errors.state && styles.errorInput,
+            ]}
             placeholder="State"
             value={state}
-            onChangeText={setState}
+            onChangeText={(text) => {
+              setState(text);
+              if (text) setErrors((prev) => ({ ...prev, state: false }));
+            }}
             placeholderTextColor="#aaa"
           />
           <TextInput
-            style={[styles.input, styles.themedInput]}
+            style={[
+              styles.input,
+              styles.themedInput,
+              errors.zip && styles.errorInput,
+            ]}
             placeholder="ZIP Code"
             value={zip}
-            onChangeText={setZip}
+            onChangeText={(text) => {
+              setZip(text);
+              if (text) setErrors((prev) => ({ ...prev, zip: false }));
+            }}
             placeholderTextColor="#aaa"
           />
           <TextInput
-            style={[styles.input, styles.themedInput]}
+            style={[
+              styles.input,
+              styles.themedInput,
+              errors.country && styles.errorInput,
+            ]}
             placeholder="Country"
             value={country}
-            onChangeText={setCountry}
+            onChangeText={(text) => {
+              setCountry(text);
+              if (text) setErrors((prev) => ({ ...prev, country: false }));
+            }}
             placeholderTextColor="#aaa"
           />
         </ThemedView>
 
-        {/* Payment Details */}
         <ThemedView style={styles.section}>
-          <ThemedText style={styles.sectionTitle}>Payment Details</ThemedText>
-          <TextInput
-            style={[styles.input, styles.themedInput]}
-            placeholder="Card Number"
-            value={cardNumber}
-            onChangeText={setCardNumber}
-            placeholderTextColor="#aaa"
-            keyboardType="numeric"
-          />
-          <TextInput
-            style={[styles.input, styles.themedInput]}
-            placeholder="Expiry Date (MM/YY)"
-            value={expiryDate}
-            onChangeText={setExpiryDate}
-            placeholderTextColor="#aaa"
-            keyboardType="numeric"
-          />
-          <TextInput
-            style={[styles.input, styles.themedInput]}
-            placeholder="CVV"
-            value={cvv}
-            onChangeText={setCvv}
-            placeholderTextColor="#aaa"
-            keyboardType="numeric"
-            secureTextEntry
-          />
+          <ThemedText style={styles.sectionTitle}>Payment Method</ThemedText>
+          <TouchableOpacity
+            style={[
+              styles.paymentOptionContainer,
+              isCODSelected ? styles.selected : styles.unselected,
+            ]}
+            onPress={() => setIsCODSelected(!isCODSelected)}
+          >
+            <ThemedText style={styles.paymentOptionText}>
+              Cash on Delivery
+            </ThemedText>
+          </TouchableOpacity>
         </ThemedView>
 
-        <TouchableOpacity style={styles.button} onPress={handlePayment}>
-          <ThemedText style={styles.buttonText}>Proceed to Payment</ThemedText>
+        <TouchableOpacity style={styles.button} onPress={handleConfirmOrder}>
+          <ThemedText style={styles.buttonText}>Place Order</ThemedText>
         </TouchableOpacity>
       </ScrollView>
     </ThemedView>
@@ -184,42 +307,61 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     color: "#333",
   },
+  errorInput: {
+    borderColor: "red",
+  },
   button: {
     backgroundColor: "#4CAF50",
     paddingVertical: 15,
     borderRadius: 10,
-    alignItems: "center",
-    width: "100%",
+    marginBottom: 20,
   },
   buttonText: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#fff",
-  },
-  orderItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  itemName: {
-    fontSize: 16,
-  },
-  itemPrice: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  separator: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    marginVertical: 10,
+    textAlign: "center",
   },
   totalAmount: {
     fontSize: 18,
     fontWeight: "bold",
-    textAlign: "right",
   },
   price: {
     color: "#4CAF50",
+  },
+  orderItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 5,
+  },
+  itemName: {
+    fontSize: 16,
+    color: "#333",
+  },
+  itemPrice: {
+    fontSize: 16,
+    color: "#4CAF50",
+  },
+  separator: {
+    marginVertical: 10,
+    borderBottomWidth: 1,
+    borderColor: "#ddd",
+  },
+  paymentOptionContainer: {
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  selected: {
+    backgroundColor: "#4CAF50",
+  },
+  unselected: {
+    backgroundColor: "#f5f5f5",
+  },
+  paymentOptionText: {
+    fontSize: 18,
+    color: "#333",
+    textAlign: "center",
   },
 });
 
