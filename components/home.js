@@ -80,7 +80,6 @@ const Home = () => {
       </ScrollView>
     </ThemedView>
   );
-  
 };
 
 const styles = StyleSheet.create({
