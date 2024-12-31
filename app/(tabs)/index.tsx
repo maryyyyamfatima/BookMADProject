@@ -47,7 +47,7 @@ export default function Index() {
       <View style={styles.container}>
         {introStep === 1 && (
           <>
-            <ThemedText style={styles.title}>Welcome to Book House</ThemedText>
+            <ThemedText style={styles.title}>Welcome to Book House!</ThemedText>
             <ThemedText style={styles.description}>
               A place where you can explore a wide variety of books. Whether you are a fiction fan or a non-fiction lover, we have something for everyone.
             </ThemedText>
