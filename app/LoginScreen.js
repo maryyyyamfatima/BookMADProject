@@ -15,7 +15,6 @@ import { useRouter } from "expo-router"; // Import useRouter from expo-router
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const router = useRouter(); // Get the router object
 
   const handleLogin = () => {
@@ -25,12 +24,13 @@ const LoginScreen = () => {
     }
 
     signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
+      .then((userCredential) => {
+        console.log("User signed in:", userCredential);
         Alert.alert("Success", "Login successful!");
-        router.push("/(tabs)"); // Navigate using router.push() instead of navigate()
+        router.push("/(tabs)"); // Navigate to tabs after successful login
       })
       .catch((error) => {
-        // Parse the error code for specific feedback
+        console.error("Login failed:", error.code, error.message);
         let errorMessage = "An error occurred. Please try again.";
         switch (error.code) {
           case "auth/user-not-found":
@@ -47,8 +47,9 @@ const LoginScreen = () => {
               "Too many unsuccessful attempts. Please try again later.";
             break;
           default:
-            errorMessage = error.message;
+            errorMessage = error.message || "Unknown error occurred.";
         }
+        // Ensure the error alert is displayed correctly
         Alert.alert("Error", errorMessage);
       });
   };
@@ -94,6 +95,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
+    paddingTop: 20,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",

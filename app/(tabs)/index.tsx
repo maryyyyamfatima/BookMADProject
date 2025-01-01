@@ -7,6 +7,7 @@ import Home from '@/components/home';
 import { CartProvider } from '@/context/CartContext'; 
 import CartButton from '@/components/CartButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LoginScreen from '@/app/LoginScreen'
 
 export default function Index() {
   const [showIntro, setShowIntro] = useState(true);
@@ -20,7 +21,7 @@ export default function Index() {
     };
 
     // Uncomment the following line to clear the history
-  //  resetIntroHistory();
+    // resetIntroHistory();
 
     const checkIntro = async () => {
       const introShown = await AsyncStorage.getItem('introShown');
@@ -82,6 +83,7 @@ export default function Index() {
           <ThemedText style={styles.title}>Welcome</ThemedText>
           <CartButton />
           <Home />
+          {/* <LoginScreen /> */}
         
       </CartProvider>
     </AuthProvider>
@@ -97,6 +99,7 @@ const styles = StyleSheet.create({
   },
   title: {
     paddingTop: 60,
+    lineHeight: 40,
     paddingBottom: 10,
     fontSize: 35,
     fontWeight: 'bold',

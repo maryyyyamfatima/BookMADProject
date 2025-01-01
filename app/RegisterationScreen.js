@@ -1,9 +1,17 @@
 import React, { useState } from "react";
-import { TextInput, Button, StyleSheet, View, Alert, Text } from "react-native";
+import {
+  TextInput,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+  Text,
+} from "react-native";
 import { auth, database } from "@/config/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { ref, set } from "firebase/database";
 import { useRouter } from "expo-router"; // Import useRouter for navigation
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
 
 const RegistrationScreen = () => {
   const [email, setEmail] = useState("");
@@ -41,20 +49,20 @@ const RegistrationScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
+    <ThemedView style={styles.container}>
+      <ThemedText style={styles.title}>Create Account</ThemedText>
 
       <TextInput
         style={styles.input}
         placeholder="Full Name"
-        placeholderTextColor="#aaa" // Lighter text color for placeholder
+        placeholderTextColor="#888"
         value={name}
         onChangeText={setName}
       />
       <TextInput
         style={styles.input}
         placeholder="Email Address"
-        placeholderTextColor="#aaa" // Lighter text color for placeholder
+        placeholderTextColor="#888"
         keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
@@ -62,29 +70,28 @@ const RegistrationScreen = () => {
       <TextInput
         style={styles.input}
         placeholder="Password"
-        placeholderTextColor="#aaa" // Lighter text color for placeholder
+        placeholderTextColor="#888"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
 
-      <Button
-        title={loading ? "Registering..." : "Register"}
+      <TouchableOpacity
+        style={styles.button}
         onPress={handleRegister}
         disabled={loading}
-        color="#8e44ad" // Purple color for the button
-      />
+      >
+        <ThemedText style={styles.buttonText}>
+          {loading ? "Registering..." : "Register"}
+        </ThemedText>
+      </TouchableOpacity>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Already have an account? </Text>
-        <Button
-          title="Login"
-          onPress={() => router.push("/LoginScreen")} // Use router.push for login navigation
-          disabled={loading}
-          color="#8e44ad" // Purple color for the button
-        />
-      </View>
-    </View>
+      <TouchableOpacity
+        onPress={() => router.push("/LoginScreen")} // Navigate to login screen
+      >
+        <Text style={styles.signInText}>Already have an account? Login</Text>
+      </TouchableOpacity>
+    </ThemedView>
   );
 };
 
@@ -93,34 +100,44 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: "center",
-    backgroundColor: "#333", // Dark grey background
+    alignItems: "center",
   },
   title: {
-    fontSize: 24,
+    paddingTop: 20,
+    fontSize: 28,
     fontWeight: "bold",
-    textAlign: "center",
     marginBottom: 20,
-    color: "#fff", // White text color for title
+    textAlign: "center",
   },
   input: {
+    width: "100%",
     height: 50,
-    borderColor: "#555", // Lighter grey border
+    borderColor: "#6A0DAD", // Purple color for consistency with login
     borderWidth: 1,
-    borderRadius: 10,
-    marginBottom: 15,
-    paddingLeft: 15,
-    backgroundColor: "#444", // Dark grey input fields for contrast
-    color: "#fff", // White text color for input fields
+    borderRadius: 8,
+    marginBottom: 16,
+    paddingLeft: 12,
+    fontSize: 16,
+    backgroundColor: "#FFF",
   },
-  footer: {
+  button: {
+    marginTop: 10,
+    backgroundColor: "#6A0DAD", // Purple color for the button
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  signInText: {
     marginTop: 20,
-    flexDirection: "row", // Align text and button in a row
-    justifyContent: "center", // Center the content horizontally
-    alignItems: "center", // Align the content vertically
-  },
-  footerText: {
-    color: "#fff", // White text for footer
-    marginRight: 5, // Add space between text and button
+    color: "#6A0DAD", // Purple color for the sign-in text
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

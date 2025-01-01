@@ -1,37 +1,46 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { auth } from "@/config/firebase"; // Import your firebase configuration
+import { onAuthStateChanged, signOut } from "firebase/auth"; // Import signOut from firebase/auth
 
+// Create a context
 const AuthContext = createContext();
+
+export const useAuth = () => {
+  return useContext(AuthContext); // Custom hook to access the context
+};
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState(null);
 
-  // Load login state from AsyncStorage on app startup
   useEffect(() => {
-    const loadAuthState = async () => {
-      const storedLoginState = await AsyncStorage.getItem("isLoggedIn");
-      setIsLoggedIn(storedLoginState === "true");
-    };
-    loadAuthState();
+    // Listen for changes in the authentication state
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsLoggedIn(true);
+        setUserData({ name: user.displayName, email: user.email }); // Set user data
+      } else {
+        setIsLoggedIn(false);
+        setUserData(null);
+      }
+    });
+
+    return unsubscribe;
   }, []);
 
-  // Simulate login
-  const login = async () => {
-    setIsLoggedIn(true);
-    await AsyncStorage.setItem("isLoggedIn", "true");
-  };
-
-  // Simulate logout
   const logout = async () => {
-    setIsLoggedIn(false);
-    await AsyncStorage.removeItem("isLoggedIn");
+    try {
+      await signOut(auth); // Sign out the user
+      setIsLoggedIn(false);
+      setUserData(null);
+    } catch (error) {
+      console.error("Error logging out: ", error);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, userData, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);

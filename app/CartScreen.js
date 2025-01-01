@@ -8,10 +8,12 @@ import {
   ScrollView,
 } from "react-native";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext"; // Import the useAuth hook
 import { router } from "expo-router";
 
 const CartScreen = () => {
   const { cartItems, addToCart, removeFromCart } = useCart();
+  const { isLoggedIn } = useAuth(); // Get login status from AuthContext
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,9 +39,24 @@ const CartScreen = () => {
   };
 
   const handleContinueShopping = () => {
-    console.log("Continuing shopping...");
     router.push("/(tabs)");
   };
+
+  if (!isLoggedIn) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.emptyCartText}>
+          You need to be logged in to view your cart.
+        </Text>
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={() => router.push("/LoginScreen")} // Redirect to login screen
+        >
+          <Text style={styles.buttonText}>Go to Login</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
